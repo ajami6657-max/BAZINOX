@@ -108,7 +108,7 @@ private fun BazinoxApp() {
             when (selectedTab) {
                 0 -> HomeScreen(Modifier.padding(innerPadding))
                 1 -> InfoScreen("جست‌وجوی بازار", "جست‌وجوی آگهی‌ها در کشورها و دسته‌بندی‌های مختلف در مرحله توسعه است.", Modifier.padding(innerPadding))
-                2 -> InfoScreen("ثبت آگهی", "فرم ثبت آگهی با تصاویر، قیمت، کشور، شهر و ویژگی‌های دسته‌بندی در مرحله توسعه است.", Modifier.padding(innerPadding))
+                2 -> PaidListingScreen(Modifier.padding(innerPadding))
                 3 -> InfoScreen("پیام‌ها", "گفت‌وگوی خریدار و فروشنده در مرحله توسعه است.", Modifier.padding(innerPadding))
                 else -> InfoScreen("حساب کاربری", "پروفایل، آگهی‌ها، علاقه‌مندی‌ها و کیف پول در مرحله توسعه هستند.", Modifier.padding(innerPadding))
             }
@@ -153,6 +153,42 @@ private fun HomeScreen(modifier: Modifier = Modifier) {
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun PaidListingScreen(modifier: Modifier = Modifier) {
+    Column(
+        modifier = modifier.fillMaxSize().padding(20.dp),
+        verticalArrangement = Arrangement.spacedBy(14.dp)
+    ) {
+        Text("ثبت آگهی", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
+        Text("در BAZINOX انتشار آگهی پس از پرداخت هزینه انجام می‌شود.")
+        Card(modifier = Modifier.fillMaxWidth()) {
+            Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text("مراحل ثبت آگهی", fontWeight = FontWeight.Bold)
+                Text("۱. انتخاب کشور و دسته‌بندی")
+                Text("۲. تکمیل عنوان، توضیحات، قیمت و تصاویر")
+                Text("۳. مشاهده مبلغ نهایی و تأیید هزینه")
+                Text("۴. پرداخت از روش‌های فعال در کشور شما")
+                Text("۵. بررسی پرداخت و انتشار آگهی")
+            }
+        }
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer)
+        ) {
+            Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                Text("قیمت‌گذاری", fontWeight = FontWeight.Bold)
+                Text("هزینه هر آگهی بر اساس کشور، دسته‌بندی و مدت انتشار از سرور دریافت می‌شود.")
+                Text("مبلغ نهایی پیش از پرداخت شفاف نمایش داده خواهد شد.")
+            }
+        }
+        Text(
+            "توجه: اتصال درگاه و تأیید واقعی پرداخت هنوز در حال پیاده‌سازی است؛ در این نسخه هیچ مبلغی دریافت نمی‌شود.",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.error
+        )
     }
 }
 
