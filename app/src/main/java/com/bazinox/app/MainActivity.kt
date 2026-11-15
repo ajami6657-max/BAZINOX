@@ -180,7 +180,8 @@ private fun PaidListingScreen(modifier: Modifier = Modifier) {
         ) {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
                 Text("قیمت‌گذاری", fontWeight = FontWeight.Bold)
-                Text("هزینه هر آگهی بر اساس کشور، دسته‌بندی و مدت انتشار از سرور دریافت می‌شود.")
+                Text("تعرفه پایه ثبت هر آگهی در ایران: ۱۰۰٬۰۰۰ تومان (۱٬۰۰۰٬۰۰۰ ریال).")
+                Text("قیمت نهایی از سرور دریافت می‌شود و مدیر می‌تواند تعرفه کشورها و دسته‌بندی‌ها را تغییر دهد.")
                 Text("مبلغ نهایی پیش از پرداخت شفاف نمایش داده خواهد شد.")
             }
         }
