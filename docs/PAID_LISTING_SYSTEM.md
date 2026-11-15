@@ -4,7 +4,7 @@
 A listing is not public until its fee has been paid and independently verified by the payment provider. The Android client must never mark a listing as paid or published based only on a local button tap or a client-supplied transaction status.
 
 ## Fee configuration
-Fees are configured server-side, not hard-coded in the APK. A fee rule is scoped by:
+Initial Iran launch tariff: **100,000 toman per listing** (equivalent to **1,000,000 IRR**) as the default base fee across categories. This is a proposed configurable tariff, not a live charge. The admin may change it or define category-specific fees. Fees are configured server-side, not hard-coded in the APK. A fee rule is scoped by:
 - country (ISO 3166-1 alpha-2; `*` may be used only as an explicit fallback),
 - category identifier,
 - listing type / duration,
