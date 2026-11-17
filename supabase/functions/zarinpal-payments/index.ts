@@ -65,12 +65,21 @@ async function createPayment(req: Request) {
     return json({ error: "تنظیمات امن درگاه هنوز تکمیل نشده است." }, 503);
   }
 
-  const paymentId = crypto.randomUUID();
+  const { data: previousPayment, error: previousError } = await admin
+    .from("listing_fee_payments")
+    .select("id,status")
+    .eq("listing_id", listing.id)
+    .maybeSingle();
+  if (previousError) return json({ error: "بررسی سابقه پرداخت ناموفق بود." }, 500);
+  if (previousPayment?.status === "paid") {
+    return json({ error: "هزینه این آگهی قبلاً پرداخت شده است." }, 409);
+  }
+  const paymentId = previousPayment?.id ?? crypto.randomUUID();
   const callback = new URL(`${supabaseUrl}/functions/v1/zarinpal-payments`);
   callback.searchParams.set("action", "callback");
   callback.searchParams.set("payment_id", paymentId);
 
-  const gatewayResponse = await fetch("https://payment.zarinpal.com/pg/v4/payment/request.json", {
+  const gatewayResponse = await fetch("https://api.zarinpal.com/pg/v4/payment/request.json", {
     method: "POST",
     headers: { "Content-Type": "application/json", Accept: "application/json" },
     body: JSON.stringify({
@@ -88,14 +97,17 @@ async function createPayment(req: Request) {
     return json({ error: "دریافت لینک پرداخت از زرین‌پال ناموفق بود.", details: gateway?.errors ?? [] }, 502);
   }
 
-  const { error: insertError } = await admin.from("listing_fee_payments").insert({
+  const paymentRow = {
     id: paymentId,
     listing_id: listing.id,
     amount_irr: amount,
     provider: "zarinpal",
     provider_reference: authority,
     status: "pending",
-  });
+  };
+  const { error: insertError } = previousPayment
+    ? await admin.from("listing_fee_payments").update(paymentRow).eq("id", paymentId)
+    : await admin.from("listing_fee_payments").insert(paymentRow);
   if (insertError) {
     return json({ error: "ثبت درخواست پرداخت در بازارینو ناموفق بود." }, 500);
   }
@@ -127,15 +139,15 @@ async function verifyCallback(url: URL) {
     return new Response("تراکنش در بازارینو پیدا نشد.", { status: 404, headers: cors });
   }
   if (payment.status === "paid") {
-    return Response.redirect("https://bazarino.ir/payment/success", 303);
+    return new Response("<!doctype html><meta charset=\"utf-8\"><title>بازارینو</title><h2>پرداخت قبلاً تأیید شده است.</h2><p>به برنامه بازارینو برگردید.</p>", { headers: { ...cors, "Content-Type": "text/html; charset=utf-8" } });
   }
   if (status.toUpperCase() !== "OK") {
     await admin.from("listing_fee_payments").update({ status: "failed" })
       .eq("id", paymentId).eq("status", "pending");
-    return Response.redirect("https://bazarino.ir/payment/failed", 303);
+    return new Response("<!doctype html><meta charset=\"utf-8\"><title>بازارینو</title><h2>پرداخت انجام نشد.</h2><p>به برنامه بازارینو برگردید و دوباره تلاش کنید.</p>", { headers: { ...cors, "Content-Type": "text/html; charset=utf-8" } });
   }
 
-  const verifyResponse = await fetch("https://payment.zarinpal.com/pg/v4/payment/verify.json", {
+  const verifyResponse = await fetch("https://api.zarinpal.com/pg/v4/payment/verify.json", {
     method: "POST",
     headers: { "Content-Type": "application/json", Accept: "application/json" },
     body: JSON.stringify({
@@ -168,7 +180,7 @@ async function verifyCallback(url: URL) {
       status: 500, headers: cors,
     });
   }
-  return Response.redirect("https://bazarino.ir/payment/success", 303);
+  return new Response("<!doctype html><meta charset=\"utf-8\"><title>بازارینو</title><h2>پرداخت با موفقیت تأیید شد.</h2><p>آگهی شما منتشر شد. به برنامه بازارینو برگردید.</p>", { headers: { ...cors, "Content-Type": "text/html; charset=utf-8" } });
 }
 
 Deno.serve(async (req) => {
