@@ -19,12 +19,18 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.ChatBubbleOutline
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material.icons.filled.Send
 import androidx.compose.material.icons.filled.PersonOutline
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.Button
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.TextField
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -35,6 +41,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -68,9 +75,10 @@ private val categories = listOf(
 @Composable
 private fun BazarinoApp() {
     var selectedTab by remember { mutableIntStateOf(0) }
-    val tabs = listOf("خانه", "جست‌وجو", "ثبت آگهی", "پیام‌ها", "حساب من")
+    val tabs = listOf("خانه", "اجتماعی", "جست‌وجو", "ثبت آگهی", "پیام‌ها", "حساب من")
     val icons = listOf(
         Icons.Default.Home,
+        Icons.Default.FavoriteBorder,
         Icons.Default.Search,
         Icons.Default.AddCircle,
         Icons.Default.ChatBubbleOutline,
@@ -107,12 +115,86 @@ private fun BazarinoApp() {
         ) { innerPadding ->
             when (selectedTab) {
                 0 -> HomeScreen(Modifier.padding(innerPadding))
-                1 -> InfoScreen("جست‌وجوی بازار", "جست‌وجوی آگهی‌ها در کشورها و دسته‌بندی‌های مختلف در مرحله توسعه است.", Modifier.padding(innerPadding))
-                2 -> PaidListingScreen(Modifier.padding(innerPadding))
-                3 -> InfoScreen("پیام‌ها", "گفت‌وگوی خریدار و فروشنده در مرحله توسعه است.", Modifier.padding(innerPadding))
+                1 -> SocialScreen(Modifier.padding(innerPadding))
+                2 -> InfoScreen("جست‌وجوی بازار", "جست‌وجوی آگهی‌ها در استان‌ها، شهرها و دسته‌بندی‌های مختلف.", Modifier.padding(innerPadding))
+                3 -> PaidListingScreen(Modifier.padding(innerPadding))
+                4 -> MessagesScreen(Modifier.padding(innerPadding))
                 else -> InfoScreen("حساب کاربری", "پروفایل، آگهی‌ها، علاقه‌مندی‌ها و کیف پول در مرحله توسعه هستند.", Modifier.padding(innerPadding))
             }
         }
+    }
+}
+
+
+@Composable
+private fun MessagesScreen(modifier: Modifier = Modifier) {
+    var draft by remember { mutableStateOf("") }
+    var sentMessages by remember { mutableStateOf(listOf<String>()) }
+    Column(modifier.fillMaxSize().padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        Text("پیام‌رسان بازارینو", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+        Text("گفت‌وگوی خریدار و فروشنده؛ هر گفتگو می‌تواند به یک آگهی یا سفارش متصل شود.")
+        Card(Modifier.fillMaxWidth()) {
+            Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text("گفت‌وگوی نمونه · فروشنده کالای دیجیتال", fontWeight = FontWeight.Bold)
+                Text("سلام، درباره این کالا سؤال داشتم.")
+                Text("سلام، بفرمایید در خدمتم.")
+                sentMessages.forEach { Text("شما: $it") }
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    TextField(value = draft, onValueChange = { draft = it }, modifier = Modifier.weight(1f), placeholder = { Text("پیام بنویسید…") }, maxLines = 3)
+                    IconButton(onClick = { if (draft.isNotBlank()) { sentMessages = sentMessages + draft.trim(); draft = "" } }) {
+                        Icon(Icons.Default.Send, contentDescription = "ارسال پیام")
+                    }
+                }
+            }
+        }
+        Text("امکانات بعدی: ارسال عکس و فایل، پیام صوتی، وضعیت آنلاین، پیشنهاد قیمت، گزارش و مسدودسازی.")
+        Text("این صفحه فعلاً نمونه تعاملی محلی است؛ ارسال واقعی پیام به سرور و اعلان‌ها هنوز متصل نیست.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
+    }
+}
+
+@Composable
+private fun SocialScreen(modifier: Modifier = Modifier) {
+    var liked by remember { mutableStateOf(setOf<Int>()) }
+    var followed by remember { mutableStateOf(setOf<Int>()) }
+    var comment by remember { mutableStateOf("") }
+    var comments by remember { mutableStateOf(listOf<String>()) }
+    Column(modifier.fillMaxSize().padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        Text("بازارینو اجتماعی", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+        Text("فروشگاه‌ها و کاربران را دنبال کنید، تجربه‌ها و محصولاتشان را ببینید.")
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            listOf("همه", "دنبال‌شده‌ها", "ویدئوها", "فروشگاه‌ها").forEach { OutlinedButton(onClick = {}) { Text(it) } }
+        }
+        Card(Modifier.fillMaxWidth()) {
+            Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text("استوری‌های تازه", fontWeight = FontWeight.Bold)
+                Text("◉ فروشگاه‌های محلی   ◉ لوازم دیجیتال   ◉ خانه و زندگی")
+                Text("استوری ۲۴ ساعته و ویدئوهای کوتاه در نسخه کامل فعال می‌شوند.", style = MaterialTheme.typography.bodySmall)
+            }
+        }
+        listOf(
+            Triple(1, "فروشگاه دیجیتال", "معرفی گوشی و لوازم جانبی؛ برای دیدن جزئیات آگهی روی صفحه محصول بزنید."),
+            Triple(2, "خانه و دکور", "ایده‌های تازه برای خانه؛ محصولات قابل خرید به آگهی متصل می‌شوند.")
+        ).forEach { post ->
+            Card(Modifier.fillMaxWidth()) {
+                Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text(post.second, fontWeight = FontWeight.Bold)
+                    Text(post.third)
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        OutlinedButton(onClick = { liked = if (post.first in liked) liked - post.first else liked + post.first }) {
+                            Text(if (post.first in liked) "♥ پسندیدید" else "♡ پسند")
+                        }
+                        OutlinedButton(onClick = { followed = if (post.first in followed) followed - post.first else followed + post.first }) {
+                            Text(if (post.first in followed) "دنبال می‌کنید" else "دنبال‌کردن")
+                        }
+                        OutlinedButton(onClick = { comment = "نظر برای " + post.second + ": " }) { Text("نظر") }
+                    }
+                }
+            }
+        }
+        TextField(value = comment, onValueChange = { comment = it }, modifier = Modifier.fillMaxWidth(), placeholder = { Text("نظر خود را بنویسید…") })
+        Button(onClick = { if (comment.isNotBlank()) { comments = comments + comment; comment = "" } }, enabled = comment.isNotBlank()) { Text("ثبت نظر نمونه") }
+        comments.forEach { Text("نظر شما: $it") }
+        Text("این فید فعلاً نمونه تعاملی محلی است؛ آپلود عکس/ویدئو، فید سروری، استوری و اعلان‌ها هنوز پیاده‌سازی نشده‌اند.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
     }
 }
 
