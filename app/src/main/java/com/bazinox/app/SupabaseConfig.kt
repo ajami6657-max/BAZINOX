@@ -10,5 +10,5 @@ package com.bazinox.app
 object SupabaseConfig {
     const val PROJECT_URL = "https://tnzrocysxpihzlgxjhfo.supabase.co"
     const val PUBLISHABLE_KEY = "sb_publishable_BJev2vovy7ffQ2ZR2hufxg_unRDfvrb"
-    const val REST_URL = "$" + "PROJECT_URL/rest/v1/"
+    const val REST_URL = "$PROJECT_URL/rest/v1/"
 }
