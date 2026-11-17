@@ -3,7 +3,9 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <application
         android:allowBackup="false"
-        android:label="BAZINOX GLOBAL"
+        android:icon="@drawable/ic_launcher"
+        android:label="BAZARINO"
+        android:roundIcon="@drawable/ic_launcher"
         android:supportsRtl="true"
         android:usesCleartextTraffic="false"
         android:theme="@android:style/Theme.Material.Light.NoActionBar">
