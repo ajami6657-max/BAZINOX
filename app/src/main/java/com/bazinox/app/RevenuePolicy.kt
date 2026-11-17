@@ -7,7 +7,7 @@ package com.bazinox.app
  */
 object RevenuePolicy {
     const val LISTING_FEE_RIAL: Long = 1_000_000L
-    const val COMMISSION_BASIS_POINTS: Int = 500 // 5.00%
+    const val COMMISSION_BASIS_POINTS: Int = 200 // 2.00%
 
     // Fixed international display tariffs; these are not converted from IRR.
     const val LISTING_30_DAYS_USD: Int = 5
