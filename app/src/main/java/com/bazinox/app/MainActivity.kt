@@ -45,6 +45,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.material3.OutlinedTextField
+import kotlinx.coroutines.launch
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -251,35 +255,71 @@ private fun HomeScreen(modifier: Modifier = Modifier) {
 
 @Composable
 private fun PaidListingScreen(modifier: Modifier = Modifier) {
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    var title by remember { mutableStateOf("") }
+    var description by remember { mutableStateOf("") }
+    var category by remember { mutableStateOf("کالای دیجیتال") }
+    var price by remember { mutableStateOf("") }
+    var province by remember { mutableStateOf("") }
+    var city by remember { mutableStateOf("") }
+    var busy by remember { mutableStateOf(false) }
+    var message by remember { mutableStateOf("") }
+
     Column(
         modifier = modifier.fillMaxSize().padding(20.dp),
-        verticalArrangement = Arrangement.spacedBy(14.dp)
+        verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
-        Text("ثبت آگهی", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
-        Text("در بازارینو انتشار هر آگهی پس از پرداخت ۱۰۰٬۰۰۰ تومان انجام می‌شود.")
-        Card(modifier = Modifier.fillMaxWidth()) {
-            Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text("مراحل ثبت آگهی", fontWeight = FontWeight.Bold)
-                Text("۱. انتخاب کشور و دسته‌بندی")
-                Text("۲. تکمیل عنوان، توضیحات، قیمت و تصاویر")
-                Text("۳. مشاهده مبلغ نهایی و تأیید هزینه")
-                Text("۴. پرداخت از روش‌های فعال در کشور شما")
-                Text("۵. بررسی پرداخت و انتشار آگهی")
-            }
-        }
-        Card(
+        Text("ثبت آگهی جدید", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
+        Text("آگهی ابتدا در سرور ذخیره می‌شود و پس از تأیید پرداخت هزینه ۱۰۰٬۰۰۰ تومان منتشر خواهد شد.")
+        TextField(value = title, onValueChange = { title = it }, modifier = Modifier.fillMaxWidth(), label = { Text("عنوان آگهی") }, singleLine = true)
+        TextField(value = description, onValueChange = { description = it }, modifier = Modifier.fillMaxWidth(), label = { Text("توضیحات") }, minLines = 3)
+        TextField(value = category, onValueChange = { category = it }, modifier = Modifier.fillMaxWidth(), label = { Text("دسته‌بندی") }, singleLine = true)
+        TextField(value = price, onValueChange = { price = it.filter(Char::isDigit) }, modifier = Modifier.fillMaxWidth(), label = { Text("قیمت به تومان (برای رایگان عدد صفر)") }, singleLine = true)
+        TextField(value = province, onValueChange = { province = it }, modifier = Modifier.fillMaxWidth(), label = { Text("استان") }, singleLine = true)
+        TextField(value = city, onValueChange = { city = it }, modifier = Modifier.fillMaxWidth(), label = { Text("شهر") }, singleLine = true)
+        Button(
             modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer)
-        ) {
-            Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                Text("قیمت‌گذاری", fontWeight = FontWeight.Bold)
-                Text("هزینه ثبت تمام آگهی‌ها: ۱۰۰٬۰۰۰ تومان (۱٬۰۰۰٬۰۰۰ ریال).")
-                Text("تعرفه مصوب فعلی برای همه دسته‌بندی‌ها یکسان است؛ مبلغ نهایی باید از سرور دریافت شود.")
-                Text("مبلغ نهایی پیش از پرداخت شفاف نمایش داده خواهد شد.")
+            enabled = !busy && title.isNotBlank() && description.isNotBlank() &&
+                price.isNotBlank() && province.isNotBlank() && city.isNotBlank(),
+            onClick = {
+                val amount = price.toLongOrNull()
+                if (amount == null) {
+                    message = "قیمت را به‌صورت عددی وارد کن."
+                } else {
+                    busy = true
+                    message = ""
+                    scope.launch {
+                        try {
+                            val result = ListingRepository.createPendingListing(
+                                context = context,
+                                title = title,
+                                description = description,
+                                categorySlug = category.trim().lowercase().replace(" ", "-"),
+                                priceToman = amount,
+                                province = province,
+                                city = city
+                            )
+                            message = result
+                            title = ""
+                            description = ""
+                            price = ""
+                        } catch (e: Exception) {
+                            message = e.message ?: "خطا در ذخیره آگهی"
+                        } finally {
+                            busy = false
+                        }
+                    }
+                }
             }
+        ) {
+            Text(if (busy) "در حال ذخیره…" else "ذخیره آگهی در بازارینو")
+        }
+        if (message.isNotBlank()) {
+            Text(message, color = if (message.contains("موفقیت")) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error)
         }
         Text(
-            "توجه: درگاه پرداخت و تأیید سمت سرور هنوز متصل نیست؛ این نسخه فقط تعرفه را نمایش می‌دهد و پولی دریافت نمی‌کند.",
+            "وضعیت فعلی: ذخیره با وضعیت «در انتظار پرداخت». درگاه پرداخت هنوز وصل نیست؛ این مرحله هیچ پولی دریافت نمی‌کند و آگهی را عمومی منتشر نمی‌کند.",
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.error
         )
