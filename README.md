@@ -1,13 +1,19 @@
-# BAZINOX GLOBAL
+# BAZARINO
 
-**BAZINOX GLOBAL** is an Iran-first online classifieds and commerce marketplace, designed to expand country by country.
+**BAZARINO** is an Iran-first online classifieds and commerce marketplace, designed to expand country by country.
 
 ## Product decisions
-- Brand: BAZINOX GLOBAL
+- Brand: BAZARINO (بازارینو)
 - Launch market: Iran
 - Expansion: international markets after the Iran launch is stable
 - Commerce model: online orders and payments, with seller/buyer messaging
 - Android package: `com.bazinox.app`
+
+## Revenue model (Iran launch)
+- Every listing: 100,000 toman (1,000,000 IRR), paid before publication.
+- Successful online order commission: 5% of the settled transaction amount.
+- Fees and commissions are calculated and verified by the backend; the Android values are display-only.
+- No live payment collection is enabled until a licensed provider and secure backend verification are connected.
 
 ## First release scope
 1. Country and city selection, defaulting to Iran
