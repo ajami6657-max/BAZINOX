@@ -45,7 +45,7 @@ import androidx.compose.ui.unit.dp
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContent { BazinoxApp() }
+        setContent { BazarinoApp() }
     }
 }
 
@@ -66,7 +66,7 @@ private val categories = listOf(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun BazinoxApp() {
+private fun BazarinoApp() {
     var selectedTab by remember { mutableIntStateOf(0) }
     val tabs = listOf("خانه", "جست‌وجو", "ثبت آگهی", "پیام‌ها", "حساب من")
     val icons = listOf(
@@ -83,9 +83,9 @@ private fun BazinoxApp() {
                 TopAppBar(
                     title = {
                         Column {
-                            Text("BAZINOX GLOBAL", fontWeight = FontWeight.Bold)
+                            Text("BAZARINO", fontWeight = FontWeight.Bold)
                             Text(
-                                "بازار آنلاین ایران؛ آماده گسترش جهانی",
+                                "بازار آنلاین سراسر ایران",
                                 style = MaterialTheme.typography.labelSmall
                             )
                         }
@@ -128,9 +128,20 @@ private fun HomeScreen(modifier: Modifier = Modifier) {
             modifier = Modifier.fillMaxWidth()
         ) {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                Text("به BAZINOX GLOBAL خوش آمدید", fontWeight = FontWeight.Bold)
-                Text("بازار آغازین: ایران | کشورها و شهرهای دیگر در مراحل بعدی اضافه می‌شوند.")
+                Text("به BAZARINO خوش آمدید", fontWeight = FontWeight.Bold)
+                Text("بازارینو؛ بازار خریدوفروش سراسر ایران.")
                 Text("محدوده شروع: ایران", style = MaterialTheme.typography.labelMedium)
+            }
+        }
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer)
+        ) {
+            Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                Text("تعرفه‌های بازارینو", fontWeight = FontWeight.Bold)
+                Text("ثبت هر آگهی: ۱۰۰٬۰۰۰ تومان")
+                Text("کارمزد معامله آنلاین: ۵٪ از مبلغ معامله موفق")
+                Text("کارمزد فقط پس از تکمیل موفق معامله محاسبه می‌شود.")
             }
         }
         Text("دسته‌بندی‌های بازار", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
@@ -163,7 +174,7 @@ private fun PaidListingScreen(modifier: Modifier = Modifier) {
         verticalArrangement = Arrangement.spacedBy(14.dp)
     ) {
         Text("ثبت آگهی", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
-        Text("در BAZINOX انتشار آگهی پس از پرداخت هزینه انجام می‌شود.")
+        Text("در بازارینو انتشار هر آگهی پس از پرداخت ۱۰۰٬۰۰۰ تومان انجام می‌شود.")
         Card(modifier = Modifier.fillMaxWidth()) {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text("مراحل ثبت آگهی", fontWeight = FontWeight.Bold)
@@ -180,13 +191,13 @@ private fun PaidListingScreen(modifier: Modifier = Modifier) {
         ) {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
                 Text("قیمت‌گذاری", fontWeight = FontWeight.Bold)
-                Text("تعرفه پایه ثبت هر آگهی در ایران: ۱۰۰٬۰۰۰ تومان (۱٬۰۰۰٬۰۰۰ ریال).")
-                Text("قیمت نهایی از سرور دریافت می‌شود و مدیر می‌تواند تعرفه کشورها و دسته‌بندی‌ها را تغییر دهد.")
+                Text("هزینه ثبت تمام آگهی‌ها: ۱۰۰٬۰۰۰ تومان (۱٬۰۰۰٬۰۰۰ ریال).")
+                Text("تعرفه مصوب فعلی برای همه دسته‌بندی‌ها یکسان است؛ مبلغ نهایی باید از سرور دریافت شود.")
                 Text("مبلغ نهایی پیش از پرداخت شفاف نمایش داده خواهد شد.")
             }
         }
         Text(
-            "توجه: اتصال درگاه و تأیید واقعی پرداخت هنوز در حال پیاده‌سازی است؛ در این نسخه هیچ مبلغی دریافت نمی‌شود.",
+            "توجه: درگاه پرداخت و تأیید سمت سرور هنوز متصل نیست؛ این نسخه فقط تعرفه را نمایش می‌دهد و پولی دریافت نمی‌کند.",
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.error
         )
