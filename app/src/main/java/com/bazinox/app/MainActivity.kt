@@ -83,9 +83,9 @@ private fun BazinoxApp() {
                 TopAppBar(
                     title = {
                         Column {
-                            Text("BAZINOX", fontWeight = FontWeight.Bold)
+                            Text("BAZINOX GLOBAL", fontWeight = FontWeight.Bold)
                             Text(
-                                "بازار جهانی در دستان تو",
+                                "بازار آنلاین ایران؛ آماده گسترش جهانی",
                                 style = MaterialTheme.typography.labelSmall
                             )
                         }
@@ -128,9 +128,9 @@ private fun HomeScreen(modifier: Modifier = Modifier) {
             modifier = Modifier.fillMaxWidth()
         ) {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                Text("به بازار جهانی BAZINOX خوش آمدید", fontWeight = FontWeight.Bold)
-                Text("بازار کشور موردنظر خود را انتخاب کنید و آگهی‌ها را پیدا کنید.")
-                Text("انتخاب قاره و کشور به‌زودی فعال می‌شود.", style = MaterialTheme.typography.labelMedium)
+                Text("به BAZINOX GLOBAL خوش آمدید", fontWeight = FontWeight.Bold)
+                Text("بازار آغازین: ایران | کشورها و شهرهای دیگر در مراحل بعدی اضافه می‌شوند.")
+                Text("محدوده شروع: ایران", style = MaterialTheme.typography.labelMedium)
             }
         }
         Text("دسته‌بندی‌های بازار", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
