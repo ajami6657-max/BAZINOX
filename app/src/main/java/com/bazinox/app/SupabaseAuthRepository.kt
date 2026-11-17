@@ -72,6 +72,7 @@ object SupabaseAuthRepository {
                     context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit()
                         .putString("access_token", token)
                         .putString("refresh_token", json.optString("refresh_token"))
+                        .putString("user_id", json.optJSONObject("user")?.optString("id").orEmpty())
                         .putString("email", json.optJSONObject("user")?.optString("email") ?: body.optString("email"))
                         .apply()
                     AuthResult("ورود موفق بود.", true)
