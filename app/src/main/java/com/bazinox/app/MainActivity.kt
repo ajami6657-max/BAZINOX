@@ -225,9 +225,10 @@ private fun HomeScreen(modifier: Modifier = Modifier) {
         ) {
             Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
                 Text("تعرفه‌های بازارینو", fontWeight = FontWeight.Bold)
-                Text("پلن ۱: ۳۰ روزه — ۷۵٬۰۰۰ تومان")
-                Text("پلن ۲: ۶۰ روزه — ۱۵۰٬۰۰۰ تومان")
-                Text("پلن ۳: ۹۰ روزه — ۲۲۵٬۰۰۰ تومان")
+                Text("پلن ۱: ۳۰ روزه — ۷۵٬۰۰۰ تومان | ۵ دلار | ۵ یورو")
+                Text("پلن ۲: ۶۰ روزه — ۱۵۰٬۰۰۰ تومان | ۱۰ دلار | ۱۰ یورو")
+                Text("پلن ۳: ۹۰ روزه — ۲۲۵٬۰۰۰ تومان | ۱۵ دلار | ۱۵ یورو")
+                Text("تعرفه‌های دلاری و یورویی ثابت هستند؛ پرداخت ارزی هنوز به درگاه بین‌المللی متصل نشده است.", style = MaterialTheme.typography.bodySmall)
                 Text("کارمزد معامله آنلاین: ${RevenuePolicy.COMMISSION_BASIS_POINTS / 100}٪ از مبلغ معامله موفق")
                 Text("مثال: از معامله ۱۰٬۰۰۰٬۰۰۰ تومانی، سهم بازارینو ${RevenuePolicy.commissionRial(100_000_000L) / 10} تومان است.")
             }
@@ -277,11 +278,15 @@ private fun PaidListingScreen(modifier: Modifier = Modifier) {
         Text("مدت انتشار و تعرفه را انتخاب کن:")
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
             listOf(30, 60, 90).forEach { days ->
-                val fee = when (days) { 30 -> "۷۵ هزار"; 60 -> "۱۵۰ هزار"; else -> "۲۲۵ هزار" }
+                val fee = when (days) {
+                    30 -> "۷۵ هزار تومان\n۵ دلار / ۵ یورو"
+                    60 -> "۱۵۰ هزار تومان\n۱۰ دلار / ۱۰ یورو"
+                    else -> "۲۲۵ هزار تومان\n۱۵ دلار / ۱۵ یورو"
+                }
                 if (planDays == days) {
-                    Button(onClick = { planDays = days }, modifier = Modifier.weight(1f)) { Text("$days روز\n$fee تومان") }
+                    Button(onClick = { planDays = days }, modifier = Modifier.weight(1f)) { Text("$days روز\n$fee") }
                 } else {
-                    OutlinedButton(onClick = { planDays = days }, modifier = Modifier.weight(1f)) { Text("$days روز\n$fee تومان") }
+                    OutlinedButton(onClick = { planDays = days }, modifier = Modifier.weight(1f)) { Text("$days روز\n$fee") }
                 }
             }
         }
