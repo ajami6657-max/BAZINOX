@@ -17,6 +17,7 @@ object ListingRepository {
         description: String,
         categorySlug: String,
         priceToman: Long,
+        planDays: Int,
         province: String,
         city: String
     ): String = withContext(Dispatchers.IO) {
@@ -29,6 +30,12 @@ object ListingRepository {
         require(title.isNotBlank()) { "عنوان آگهی را وارد کن." }
         require(description.isNotBlank()) { "توضیحات آگهی را وارد کن." }
         require(priceToman >= 0) { "قیمت معتبر نیست." }
+        val feeRial = when (planDays) {
+            30 -> 750000L
+            60 -> 1500000L
+            90 -> 2250000L
+            else -> throw IllegalArgumentException("پلن انتشار معتبر نیست.")
+        }
         require(province.isNotBlank() && city.isNotBlank()) { "استان و شهر را وارد کن." }
 
         val body = JSONObject()
@@ -38,6 +45,8 @@ object ListingRepository {
             .put("description", description.trim())
             .put("category_slug", categorySlug)
             .put("price_irr", Math.multiplyExact(priceToman, 10L))
+            .put("plan_days", planDays)
+            .put("listing_fee_irr", feeRial)
             .put("province", province.trim())
             .put("city", city.trim())
             .put("status", "pending_fee")
