@@ -1,34 +1,41 @@
-# BAZINOX
+# BAZINOX GLOBAL
 
-Global classifieds and commerce marketplace for Android, with country-based markets and a USDT payment architecture.
+**BAZINOX GLOBAL** is an Iran-first online classifieds and commerce marketplace, designed to expand country by country.
 
-## Product scope
-BAZINOX is planned as a multi-country marketplace inspired by classifieds platforms, expanded for international trade:
-- Vehicles, real estate, electronics, home and general goods
-- Jobs, services, wholesale, travel and accommodation
-- Search, category filters, saved listings, seller profiles and ratings
-- Buyer/seller messaging, offers, orders, reports and moderation
-- Country/continent selection, city/region filters and localization
-- Currency display for IRR (rial), USD, EUR, CNY and RUB
-- USDT payment workflows, initially on TRON TRC-20 in test environments
+## Product decisions
+- Brand: BAZINOX GLOBAL
+- Launch market: Iran
+- Expansion: international markets after the Iran launch is stable
+- Commerce model: online orders and payments, with seller/buyer messaging
+- Android package: `com.bazinox.app`
 
-## Architecture
-- `android/`: Kotlin + Jetpack Compose Android client
-- `backend/`: API and domain services
-- `docs/`: product and security architecture
-- `.github/workflows/`: CI automation
+## First release scope
+1. Country and city selection, defaulting to Iran
+2. Classified listings with photos, category, price and location
+3. Search, category filters and listing details
+4. Buyer/seller accounts and seller profiles
+5. Messaging, orders and order status
+6. Payment integration through licensed providers available in each market
+7. Admin moderation, reports and seller verification
+
+## Technical structure
+- `app/`: Android Kotlin + Jetpack Compose client
+- `backend/`: backend API and database migrations
+- `docs/`: product, API and security decisions
+- `.github/workflows/`: automated Android build and test
 
 ## Development status
-This repository currently contains an initial project README. It is **not yet a functioning marketplace or payment service**. No real-money or mainnet transactions are enabled.
+The current Android project is an early UI shell. It is **not yet a live marketplace**: accounts, server-backed listings, chat, orders, payment collection and delivery integrations still need implementation. The CI workflow builds a debug APK artifact; a successful build does not mean those services are live.
 
-## Security rules
-- Never commit API keys, seed phrases, private keys, keystore files or production credentials.
-- Never put custody keys in the Android APK.
-- Test blockchain integration on a testnet before any production consideration.
-- Real custody, exchange, fiat payout and money transmission require qualified legal review, licensing and regulated providers in each operating jurisdiction.
+## Security and payments
+- Never commit API keys, passwords, private keys, seed phrases or signing keystores.
+- Never store custody keys in the Android app.
+- Do not collect real money until a verified payment provider, server-side payment confirmation, refunds and reconciliation are implemented.
+- USDT or cross-border payment support must be reviewed against local laws, sanctions, licensing and provider availability before activation.
+- Use sandbox/test environments before production payment integration.
 
-## First milestone
-Create the Android app shell, backend health endpoint, database migrations and automated build/test workflows. Then implement listing, search, messaging and testnet-only USDT deposit monitoring.
+## Build
+GitHub Actions runs `gradle assembleDebug` and `gradle testDebugUnitTest` on pushes to `main`. The debug APK is uploaded as a workflow artifact.
 
 ## License
-Proprietary project. Add a license only after deciding the intended distribution and ownership terms.
+Proprietary project. No open-source license has been granted.
