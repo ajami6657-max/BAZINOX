@@ -225,7 +225,9 @@ private fun HomeScreen(modifier: Modifier = Modifier) {
         ) {
             Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
                 Text("تعرفه‌های بازارینو", fontWeight = FontWeight.Bold)
-                Text("ثبت هر آگهی: ${RevenuePolicy.LISTING_FEE_RIAL / 10} تومان")
+                Text("پلن ۱: ۳۰ روزه — ۷۵٬۰۰۰ تومان")
+                Text("پلن ۲: ۶۰ روزه — ۱۵۰٬۰۰۰ تومان")
+                Text("پلن ۳: ۹۰ روزه — ۲۲۵٬۰۰۰ تومان")
                 Text("کارمزد معامله آنلاین: ${RevenuePolicy.COMMISSION_BASIS_POINTS / 100}٪ از مبلغ معامله موفق")
                 Text("مثال: از معامله ۱۰٬۰۰۰٬۰۰۰ تومانی، سهم بازارینو ${RevenuePolicy.commissionRial(100_000_000L) / 10} تومان است.")
             }
