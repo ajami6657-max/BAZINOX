@@ -263,6 +263,7 @@ private fun PaidListingScreen(modifier: Modifier = Modifier) {
     var price by remember { mutableStateOf("") }
     var province by remember { mutableStateOf("") }
     var city by remember { mutableStateOf("") }
+    var planDays by remember { mutableIntStateOf(30) }
     var busy by remember { mutableStateOf(false) }
     var message by remember { mutableStateOf("") }
 
@@ -271,7 +272,18 @@ private fun PaidListingScreen(modifier: Modifier = Modifier) {
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         Text("ثبت آگهی جدید", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
-        Text("آگهی ابتدا در سرور ذخیره می‌شود و پس از تأیید پرداخت هزینه ۱۰۰٬۰۰۰ تومان منتشر خواهد شد.")
+        Text("مدت انتشار و تعرفه را انتخاب کن:")
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+            listOf(30, 60, 90).forEach { days ->
+                val fee = when (days) { 30 -> "۷۵ هزار"; 60 -> "۱۵۰ هزار"; else -> "۲۲۵ هزار" }
+                if (planDays == days) {
+                    Button(onClick = { planDays = days }, modifier = Modifier.weight(1f)) { Text("$days روز\n$fee تومان") }
+                } else {
+                    OutlinedButton(onClick = { planDays = days }, modifier = Modifier.weight(1f)) { Text("$days روز\n$fee تومان") }
+                }
+            }
+        }
+        Text("آگهی پس از تأیید پرداخت، به مدت $planDays روز منتشر می‌ماند.")
         TextField(value = title, onValueChange = { title = it }, modifier = Modifier.fillMaxWidth(), label = { Text("عنوان آگهی") }, singleLine = true)
         TextField(value = description, onValueChange = { description = it }, modifier = Modifier.fillMaxWidth(), label = { Text("توضیحات") }, minLines = 3)
         TextField(value = category, onValueChange = { category = it }, modifier = Modifier.fillMaxWidth(), label = { Text("دسته‌بندی") }, singleLine = true)
@@ -297,6 +309,7 @@ private fun PaidListingScreen(modifier: Modifier = Modifier) {
                                 description = description,
                                 categorySlug = category.trim().lowercase().replace(" ", "-"),
                                 priceToman = amount,
+                                planDays = planDays,
                                 province = province,
                                 city = city
                             )
@@ -319,7 +332,7 @@ private fun PaidListingScreen(modifier: Modifier = Modifier) {
             Text(message, color = if (message.contains("موفقیت")) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error)
         }
         Text(
-            "وضعیت فعلی: ذخیره با وضعیت «در انتظار پرداخت». درگاه پرداخت هنوز وصل نیست؛ این مرحله هیچ پولی دریافت نمی‌کند و آگهی را عمومی منتشر نمی‌کند.",
+            "وضعیت فعلی: آگهی با پلن انتخابی ذخیره می‌شود و در انتظار پرداخت می‌ماند. درگاه پرداخت هنوز وصل نیست؛ هیچ پولی دریافت نمی‌شود و آگهی تا تأیید پرداخت عمومی نخواهد شد.",
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.error
         )
