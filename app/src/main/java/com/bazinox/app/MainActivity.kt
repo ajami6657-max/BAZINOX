@@ -122,7 +122,7 @@ private fun BazarinoApp() {
                 1 -> SocialScreen(Modifier.padding(innerPadding))
                 2 -> InfoScreen("جست‌وجوی بازار", "جست‌وجوی آگهی‌ها در استان‌ها، شهرها و دسته‌بندی‌های مختلف.", Modifier.padding(innerPadding))
                 3 -> PaidListingScreen(Modifier.padding(innerPadding))
-                4 -> MessagesScreen(Modifier.padding(innerPadding))
+                4 -> ChatScreen(Modifier.padding(innerPadding))
                 else -> AuthScreen(Modifier.padding(innerPadding))
             }
         }
