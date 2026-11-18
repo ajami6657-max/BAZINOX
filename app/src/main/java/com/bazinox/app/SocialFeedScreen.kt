@@ -1,5 +1,7 @@
 package com.bazinox.app
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -27,6 +29,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import android.net.Uri
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
@@ -37,6 +40,8 @@ fun SocialFeedScreen(modifier: Modifier = Modifier) {
     val scope = rememberCoroutineScope()
     val posts = remember { mutableStateListOf<SocialPost>() }
     var caption by remember { mutableStateOf("") }
+    var imageUri by remember { mutableStateOf<Uri?>(null) }
+    val imagePicker = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { imageUri = it }
     var busy by remember { mutableStateOf(false) }
     var message by remember { mutableStateOf("برای دیدن فید، وارد حساب شو.") }
 
@@ -67,7 +72,7 @@ fun SocialFeedScreen(modifier: Modifier = Modifier) {
                 scope.launch {
                     busy = true
                     try {
-                        SocialRepository.createPost(context, caption)
+                        SocialRepository.createPost(context, caption, imageUri)
                         caption = ""
                         message = "پست با موفقیت منتشر شد."
                         posts.clear()
