@@ -1,5 +1,7 @@
 package com.bazinox.app
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -24,6 +26,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
+import coil.compose.AsyncImage
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -42,6 +46,18 @@ fun ChatScreen(modifier: Modifier = Modifier) {
     var draft by remember { mutableStateOf("") }
     var busy by remember { mutableStateOf(false) }
     var status by remember { mutableStateOf("برای دیدن گفتگوها وارد حساب شو و فهرست را تازه‌سازی کن.") }
+    val imagePicker = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+        val target = selectedId
+        if (uri != null && target != null) scope.launch {
+            busy = true
+            try {
+                ChatRepository.sendImage(context, target, uri)
+                messages = ChatRepository.messages(context, target)
+                status = "تصویر به‌صورت خصوصی ارسال شد."
+            } catch (e: Exception) { status = e.message ?: "ارسال تصویر ناموفق بود." }
+            finally { busy = false }
+        }
+    }
 
     fun refreshConversations() {
         scope.launch {
@@ -110,16 +126,27 @@ fun ChatScreen(modifier: Modifier = Modifier) {
                 ) {
                     items(messages, key = { it.id }) { message ->
                         val mine = message.senderId == currentUserId
-                        Text(
-                            text = (if (mine) "شما: " else "طرف گفتگو: ") + message.body,
-                            modifier = Modifier.fillMaxWidth(),
-                            color = if (mine) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
-                        )
+                        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                            Text(if (mine) "شما" else "طرف گفتگو", color = if (mine) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface)
+                            if (message.messageType == "image" && message.mediaUrl != null) {
+                                AsyncImage(
+                                    model = message.mediaUrl,
+                                    contentDescription = "تصویر ارسال‌شده در گفتگو",
+                                    modifier = Modifier.fillMaxWidth().height(180.dp),
+                                    contentScale = ContentScale.Crop
+                                )
+                            } else if (message.body.isNotBlank() && message.body != "null") {
+                                Text(message.body, modifier = Modifier.fillMaxWidth())
+                            }
+                        }
                     }
                 }
             }
         }
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            OutlinedButton(enabled = !busy && selectedId != null, onClick = { imagePicker.launch("image/*") }) {
+                Text("＋ تصویر")
+            }
             OutlinedTextField(
                 value = draft, onValueChange = { draft = it },
                 modifier = Modifier.weight(1f), label = { Text("پیام متنی") }, maxLines = 3
@@ -141,6 +168,6 @@ fun ChatScreen(modifier: Modifier = Modifier) {
         }
         Text(status, style = MaterialTheme.typography.bodySmall)
         Spacer(Modifier.height(2.dp))
-        Text("فعلاً پیام متنی فعال است؛ ارسال تصویر، فایل و اعلان لحظه‌ای در مرحله بعد اضافه می‌شود.", style = MaterialTheme.typography.bodySmall)
+        Text("ارسال متن و تصویر فعال است؛ فایل‌های دیگر و اعلان لحظه‌ای در مراحل بعد اضافه می‌شوند.", style = MaterialTheme.typography.bodySmall)
     }
 }
