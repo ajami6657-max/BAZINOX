@@ -15,7 +15,8 @@ data class SocialPost(
     val authorId: String,
     val caption: String,
     val createdAt: String,
-    val likedByMe: Boolean
+    val likedByMe: Boolean,
+    val imageUrl: String? = null
 )
 
 object SocialRepository {
@@ -63,7 +64,7 @@ object SocialRepository {
         }
 
     suspend fun loadFeed(context: Context): List<SocialPost> {
-        val raw = request(context, "social_posts?select=id,author_id,caption,created_at&status=eq.published&visibility=eq.public&order=created_at.desc&limit=50")
+        val raw = request(context, "social_posts?select=id,author_id,caption,created_at,social_media(media_key,media_type)&status=eq.published&visibility=eq.public&order=created_at.desc&limit=50")
         val rows = JSONArray(raw)
         val userId = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getString("user_id", null)
         val likedIds = if (userId != null) {
@@ -73,7 +74,16 @@ object SocialRepository {
         return (0 until rows.length()).mapNotNull { i ->
             rows.optJSONObject(i)?.let { row ->
                 val id = row.optString("id")
-                SocialPost(id, row.optString("author_id"), row.optString("caption"), row.optString("created_at"), id in likedIds)
+                val media = row.optJSONArray("social_media")
+                val firstImage = (0 until (media?.length() ?: 0))
+                    .mapNotNull { media?.optJSONObject(it) }
+                    .firstOrNull { it.optString("media_type") == "image" }
+                val mediaKey = firstImage?.optString("media_key")?.takeIf { it.isNotBlank() }
+                val imageUrl = mediaKey?.let { key ->
+                    val safePath = key.split("/").joinToString("/") { Uri.encode(it) }
+                    "${SupabaseConfig.PROJECT_URL.trimEnd('/')}/storage/v1/object/public/social-media/$safePath"
+                }
+                SocialPost(id, row.optString("author_id"), row.optString("caption"), row.optString("created_at"), id in likedIds, imageUrl)
             }
         }
     }
