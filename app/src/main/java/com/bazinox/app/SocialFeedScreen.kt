@@ -31,6 +31,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import android.net.Uri
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.layout.ContentScale
+import coil.compose.AsyncImage
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 
@@ -94,7 +96,15 @@ fun SocialFeedScreen(modifier: Modifier = Modifier) {
                 Card(Modifier.fillMaxWidth()) {
                     Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                         Text("کاربر ${post.authorId.take(8)}", fontWeight = FontWeight.Bold)
-                        Text(post.caption)
+                        if (post.caption.isNotBlank()) Text(post.caption)
+                        post.imageUrl?.let { imageUrl ->
+                            AsyncImage(
+                                model = imageUrl,
+                                contentDescription = "تصویر پست",
+                                modifier = Modifier.fillMaxWidth().height(220.dp),
+                                contentScale = ContentScale.Crop
+                            )
+                        }
                         Text(post.createdAt, style = MaterialTheme.typography.labelSmall)
                         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             OutlinedButton(onClick = {
