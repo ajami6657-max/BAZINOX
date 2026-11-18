@@ -1,6 +1,7 @@
 package com.bazinox.app
 
 import android.content.Context
+import android.net.Uri
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.json.JSONArray
@@ -77,12 +78,49 @@ object SocialRepository {
         }
     }
 
-    suspend fun createPost(context: Context, caption: String) {
-        val (token, userId) = auth(context)
+    suspend fun createPost(context: Context, caption: String, imageUri: Uri? = null) {
+        val (_, userId) = auth(context)
+        val postId = UUID.randomUUID().toString()
         request(context, "social_posts", "POST",
-            JSONObject().put("id", UUID.randomUUID().toString()).put("author_id", userId)
+            JSONObject().put("id", postId).put("author_id", userId)
                 .put("caption", caption.trim()).put("visibility", "public").put("status", "published"),
             "return=minimal")
+        if (imageUri != null) {
+            val mime = context.contentResolver.getType(imageUri) ?: "image/jpeg"
+            if (mime !in listOf("image/jpeg", "image/png", "image/webp")) {
+                throw IllegalStateException("فقط تصویر JPG، PNG یا WEBP پشتیبانی می‌شود.")
+            }
+            val bytes = context.contentResolver.openInputStream(imageUri)?.use { it.readBytes() }
+                ?: throw IllegalStateException("خواندن تصویر انتخاب‌شده ممکن نیست.")
+            if (bytes.size > 10 * 1024 * 1024) throw IllegalStateException("حجم تصویر باید کمتر از ۱۰ مگابایت باشد.")
+            val ext = when (mime) { "image/png" -> "png"; "image/webp" -> "webp"; else -> "jpg" }
+            val objectPath = "$userId/${UUID.randomUUID()}.$ext"
+            withContext(Dispatchers.IO) {
+                val connection = (URL(SupabaseConfig.PROJECT_URL.trimEnd('/') + "/storage/v1/object/social-media/" + objectPath)
+                    .openConnection() as HttpURLConnection).apply {
+                    requestMethod = "POST"
+                    connectTimeout = 20000
+                    readTimeout = 30000
+                    doOutput = true
+                    setRequestProperty("apikey", SupabaseConfig.PUBLISHABLE_KEY)
+                    setRequestProperty("Authorization", "Bearer " + auth(context).first)
+                    setRequestProperty("Content-Type", mime)
+                    setRequestProperty("x-upsert", "false")
+                }
+                try {
+                    connection.outputStream.use { it.write(bytes) }
+                    val code = connection.responseCode
+                    if (code !in 200..299) {
+                        val error = connection.errorStream?.bufferedReader()?.use { it.readText() }.orEmpty()
+                        throw IllegalStateException("بارگذاری تصویر ناموفق بود ($code): ${error.take(160)}")
+                    }
+                } finally { connection.disconnect() }
+            }
+            request(context, "social_media", "POST",
+                JSONObject().put("id", UUID.randomUUID().toString()).put("post_id", postId)
+                    .put("media_key", objectPath).put("media_type", "image").put("sort_order", 0),
+                "return=minimal")
+        }
     }
 
     suspend fun toggleLike(context: Context, post: SocialPost) {
