@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -41,9 +42,23 @@ fun SocialFeedScreen(modifier: Modifier = Modifier) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val posts = remember { mutableStateListOf<SocialPost>() }
+    val stories = remember { mutableStateListOf<SocialStory>() }
     var caption by remember { mutableStateOf("") }
     var imageUri by remember { mutableStateOf<Uri?>(null) }
     val imagePicker = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { imageUri = it }
+    var storyBusy by remember { mutableStateOf(false) }
+    val storyPicker = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { selected ->
+        if (selected != null) scope.launch {
+            storyBusy = true
+            try {
+                StoryRepository.createImageStory(context, selected)
+                stories.clear()
+                stories.addAll(StoryRepository.loadStories(context))
+                message = "استوری با موفقیت منتشر شد و تا ۲۴ ساعت نمایش داده می‌شود."
+            } catch (e: Exception) { message = e.message ?: "انتشار استوری ناموفق بود." }
+            finally { storyBusy = false }
+        }
+    }
     var busy by remember { mutableStateOf(false) }
     var message by remember { mutableStateOf("برای دیدن فید، وارد حساب شو.") }
 
@@ -53,6 +68,8 @@ fun SocialFeedScreen(modifier: Modifier = Modifier) {
             try {
                 posts.clear()
                 posts.addAll(SocialRepository.loadFeed(context))
+                stories.clear()
+                stories.addAll(StoryRepository.loadStories(context))
                 message = if (posts.isEmpty()) "هنوز پستی منتشر نشده است؛ اولین پست را منتشر کن." else ""
             } catch (e: Exception) {
                 message = e.message ?: "دریافت فید ناموفق بود."
@@ -65,6 +82,32 @@ fun SocialFeedScreen(modifier: Modifier = Modifier) {
     Column(modifier.fillMaxSize().padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
         Text("اجتماعی بازارینو", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
         Text("پست‌های عمومی کاربران بازارینو")
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Button(enabled = !storyBusy, onClick = { storyPicker.launch("image/*") }) {
+                Text(if (storyBusy) "در حال بارگذاری…" else "＋ افزودن استوری")
+            }
+            OutlinedButton(enabled = !busy && !storyBusy, onClick = { refresh() }) { Text("تازه‌سازی استوری‌ها") }
+        }
+        if (stories.isNotEmpty()) {
+            Text("استوری‌های فعال · پس از ۲۴ ساعت منقضی می‌شوند", fontWeight = FontWeight.SemiBold)
+            LazyRow(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                items(stories, key = { it.id }) { story ->
+                    Card {
+                        Column(Modifier.padding(6.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                            AsyncImage(
+                                model = story.mediaUrl,
+                                contentDescription = "استوری کاربر",
+                                modifier = Modifier.height(112.dp).fillMaxWidth(),
+                                contentScale = ContentScale.Crop
+                            )
+                            Text("کاربر ${story.authorId.take(6)}", style = MaterialTheme.typography.labelSmall)
+                        }
+                    }
+                }
+            }
+        } else {
+            Text("هنوز استوری فعالی وجود ندارد؛ اولین استوری را منتشر کن.", style = MaterialTheme.typography.bodySmall)
+        }
         OutlinedTextField(
             value = caption, onValueChange = { caption = it }, modifier = Modifier.fillMaxWidth(),
             label = { Text("چه چیزی می‌خواهی به اشتراک بگذاری؟") }, minLines = 2
