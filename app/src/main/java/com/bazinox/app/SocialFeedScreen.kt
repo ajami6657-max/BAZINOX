@@ -68,12 +68,16 @@ fun SocialFeedScreen(modifier: Modifier = Modifier) {
             label = { Text("چه چیزی می‌خواهی به اشتراک بگذاری؟") }, minLines = 2
         )
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            Button(enabled = !busy && caption.isNotBlank(), onClick = {
+            OutlinedButton(enabled = !busy, onClick = { imagePicker.launch("image/*") }) {
+                Text(if (imageUri == null) "انتخاب تصویر" else "تصویر انتخاب شد")
+            }
+            Button(enabled = !busy && (caption.isNotBlank() || imageUri != null), onClick = {
                 scope.launch {
                     busy = true
                     try {
                         SocialRepository.createPost(context, caption, imageUri)
                         caption = ""
+                        imageUri = null
                         message = "پست با موفقیت منتشر شد."
                         posts.clear()
                         posts.addAll(SocialRepository.loadFeed(context))
