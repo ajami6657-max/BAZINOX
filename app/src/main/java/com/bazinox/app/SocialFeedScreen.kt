@@ -47,6 +47,7 @@ fun SocialFeedScreen(modifier: Modifier = Modifier) {
     var imageUri by remember { mutableStateOf<Uri?>(null) }
     val imagePicker = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { imageUri = it }
     var storyBusy by remember { mutableStateOf(false) }
+    var message by remember { mutableStateOf("برای دیدن فید، وارد حساب شو.") }
     val storyPicker = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { selected ->
         if (selected != null) scope.launch {
             storyBusy = true
@@ -60,7 +61,6 @@ fun SocialFeedScreen(modifier: Modifier = Modifier) {
         }
     }
     var busy by remember { mutableStateOf(false) }
-    var message by remember { mutableStateOf("برای دیدن فید، وارد حساب شو.") }
 
     fun refresh() {
         scope.launch {
